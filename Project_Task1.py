@@ -5,8 +5,6 @@ Created on Sun Apr  3 20:08:11 2022
 @author: rida
 """
 
-import re
-from multiprocessing import Pool
 import multiprocessing as mp
 
 def mapper1(x):
@@ -16,52 +14,65 @@ def mapper1(x):
     return (cols[0], cols[1])
     
 
-
 def mapper2(m):
     cols = m.split(',')
     
     return (cols[2], cols[1])
-"""
 
 def reducer(y):
-    
-    code, flights = y
-    
-    return (code, len(flights))
-
-"""
-def reducer(y):
-    count = []
-    passenger, flights = y
+    airport, flights = y
     count = len(flights)
-    #max_count = max(count)
+    
+    return(airport, count)
 
-    return (count)
 
-    #max_count = max(range(count))
-    #return (count)
-    #return (passenger, count)
-    #return (count)
-
+"""  
 def shuffler(map_out1, map_out2):
     data = {}
     map_out1 = list(filter(None, map_out1))
     map_out2 = list(filter(None, map_out2))
+    
+
+    for i,j in map_out1:
+        
+        if i not in data:
+            data[i] = [j]
+        else:
+            data[i].append(j)
+
+      
+        for k,v in map_out2:
+            
+            if (k == data.items()):
+                data[k] = j[v]
+                data[i] = data[k]
+            else:
+                 data[k].append(v)
+            
+    return data
+"""        
+
+
+def shuffler(map_out1, map_out2):
+    data = {}
+    map_out1 = set(list(filter(None, map_out1)))
+    map_out2 = set(list(filter(None, map_out2)))
+    
     
     for i,j in map_out1:
         if i not in data:
             data[i] = [j]
         else:
             data[i].append(j)
-                
-
-    for k, v in map_out2:
+        
+    for k,v in map_out2:
         if k not in data:
-            data[k] = [v]
+            data[k]= [v]
         else:
             data[k].append(v)
-         
+            
     return data
+                 
 
  
 mapper_in = []
