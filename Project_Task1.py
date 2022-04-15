@@ -1,23 +1,24 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Apr  3 20:08:11 2022
-
-@author: rida
-"""
 
 import multiprocessing as mp
 
-def mapper1(x):
-    
-    cols = x.split(',')
-    
-    return (cols[0], cols[1])
-    
+""" INITIALIZING FUNCTIONS FOR MULTI-PROCESSING """
 
-def mapper2(m):
+###########################################################
+
+def mapper1(m):
+    
     cols = m.split(',')
     
+    return (cols[0], cols[1])
+
+############################################################
+    
+def mapper2(n):
+    cols = n.split(',')
+    
     return (cols[2], cols[1])
+
+#############################################################
 
 def reducer(y):
     airport, flights = y
@@ -25,8 +26,9 @@ def reducer(y):
     
     return(airport, count)
 
+##############################################################
 
-"""  
+"""
 def shuffler(map_out1, map_out2):
     data = {}
     map_out1 = list(filter(None, map_out1))
@@ -50,30 +52,33 @@ def shuffler(map_out1, map_out2):
                  data[k].append(v)
             
     return data
-"""        
+ """      
+##############################################################
 
-
-def shuffler(map_out1, map_out2):
-    data = {}
-    map_out1 = set(list(filter(None, map_out1)))
-    map_out2 = set(list(filter(None, map_out2)))
+def shuffler(airport_map, flight_map):
+    codes = {}
+    flights = {}
+    airport_map = set(list(filter(None, airport_map)))
+    flight_map = set(list(filter(None, flight_map)))
     
     
-    for i,j in map_out1:
-        if i not in data:
-            data[i] = [j]
+    for i,j in airport_map:
+        if j not in codes:
+            codes[j] = [i]
         else:
-            data[i].append(j)
+            codes[j].append(i)
         
-    for k,v in map_out2:
-        if k not in data:
-            data[k]= [v]
+    for k,v in flight_map:
+        if codes[k][0] not in flights:
+            flights[codes[k][0]]= [v]
         else:
-            data[k].append(v)
+            flights[codes[k][0]].append(v)
             
-    return data
-                 
+    return flights
+             
+#################################################################
 
+""" ENTERING MAIN FILE FOR EXECUTION """
  
 mapper_in = []
 
@@ -90,5 +95,5 @@ if __name__ == "__main__":
         mapper_out1 = pool.map(mapper1, mapper_in1, chunksize=int(len(mapper_in1)/mp.cpu_count()))
         mapper_out2 = pool.map(mapper2, mapper_in2, chunksize=int(len(mapper_in2)/mp.cpu_count()))
         reducer_in = shuffler(mapper_out1, mapper_out2)
-        #reducer_out = pool.map(reducer, reducer_in.items(), chunksize=int(len(reducer_in.keys())/mp.cpu_count()))
-        print(reducer_in)
+        reducer_out = pool.map(reducer, reducer_in.items(), chunksize=int(len(reducer_in.keys())/mp.cpu_count()))
+        print(reducer_out)

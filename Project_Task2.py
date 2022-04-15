@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr  2 17:48:12 2022
-
-@author: Rida
-"""
 
 
 import multiprocessing as mp
-from collections import Counter
+
+""" DEFINING FUNCTIONS FOR MULTI-PROCESSING """
+
+#########################################################
 
 def mapper(x):
     cols = x.split(',')
@@ -15,52 +12,36 @@ def mapper(x):
     return(cols[0], cols[1])
 
 
-"""
-def reducer(y):
+#########################################################
     
-    count = 0
-    max_count = 0
-    passenger, flights = y
-    
-    if passenger == passenger:
-        max_count = max_count
-        for i in flights:
-            count += 1
-            if count > max_count:
-                max_count = count
-    
-    return max_count
-"""
 def combiner(y):
     
-    res = list(Counter(key for key, num in y
-                       for idx in range(num)).items())
-    return res
+    passenger, flights = y
+    count = len(flights)
     
-    
+    return (passenger,count)
+
+#########################################################
+
 
 def reducer(z):
     
-    passenger, flights = z
-    count = len(flights)
+    max_val = 0
+    passengers = []
+    for passenger in z.keys():
+        if z[passenger]> max_val:
+            max_val =  z[passenger]
+            passengers = [passenger]
+        elif z[passenger] == max_val:
+            passengers.append(passenger)
+            
     
-
-    return (passenger, count)
-
-"""
-def reducer2(m):
-    max = 0
-    i,j = m
-    if(m > max):
-        
-        max = j;
-
-    return (i, max)
-"""   
-  
+    return (passengers, max_val)
 
 
-def shuffler(map_out):
+#######################################################
+
+def sorter1(map_out):
     data = {}
     map_out = set(list(filter(None, map_out)))
     for k, v in map_out:
@@ -70,6 +51,21 @@ def shuffler(map_out):
             data[k].append(v)
             
     return (data)
+
+#########################################################
+
+
+def sorter2(comb_out):
+    data1 = {}
+    comb_out = list(filter(None, comb_out))
+    for k, v in comb_out:
+       data1[k] = v
+            
+    return (data1)
+
+#########################################################
+
+""" ENTERING MAIN FILE FOR EXECUTION """
     
 mapper_in = []
 
@@ -79,6 +75,7 @@ if __name__ == "__main__":
         
     with mp.Pool(processes=mp.cpu_count()) as pool:
         mapper_out = pool.map(mapper, mapper_in, chunksize=int(len(mapper_in)/mp.cpu_count()))
-        reducer_in = shuffler(mapper_out)
-        #reducer_out = pool.map(reducer, reducer_in.items(), chunksize=int(len(reducer_in.keys())/mp.cpu_count()))
-        print(reducer_in)
+        combiner_in = sorter1(mapper_out)
+        combiner_out = pool.map(combiner, combiner_in.items(), chunksize=int(len(combiner_in.keys())/mp.cpu_count()))
+        reducer_in = sorter2(combiner_out)
+        print(reducer(reducer_in))
