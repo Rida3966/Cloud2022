@@ -51,7 +51,7 @@ def combiner(y):
 def sorter1(map_out):
     data = {}
     
-    # Filtering duplicates from mapper list
+    # Filtering duplicate pairs and Null values from mapper list
     map_out = set(list(filter(None, map_out)))
     
     # Sorting mapper results for Combiner function
@@ -71,7 +71,7 @@ def sorter2(comb_out):
     
     data = {}
     
-    # Filtering duplicates from combiner list
+    # Filtering any Null values from combiner list
     comb_out = list(filter(None, comb_out))
     
     

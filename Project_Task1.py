@@ -44,14 +44,14 @@ def reducer(z):
 
 ##############################################################
 
-""" COMBINER FUNCTION (To aggregarte/combine results of both mappers) """
+""" SHUFFLER FUNCTION (To aggregarte/merge results of both mappers) """
 
-def combiner(x, y):
+def shuffler(x, y):
 
     codes = {}
     flights = {}
     
-    # Removing duplicates in file
+    # Removing duplicate sets in file
     airport_map = set(list(filter(None, x)))
     flight_map = set(list(filter(None, y)))
     
@@ -104,8 +104,8 @@ def main():
         map_out1 = pool.map(mapper1, map_in1, chunksize=int(len(map_in1)/mp.cpu_count()))
         map_out2 = pool.map(mapper2, map_in2, chunksize=int(len(map_in2)/mp.cpu_count()))
         
-        # Combiner Job
-        reducer_in = combiner(map_out1, map_out2)
+        # Shuffler Job
+        reducer_in = shuffler(map_out1, map_out2)
         
         # Reducer Job
         reducer_out = pool.map(reducer, reducer_in.items(), chunksize=int(len(reducer_in.keys())/mp.cpu_count()))
